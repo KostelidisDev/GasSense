@@ -18,7 +18,7 @@ with open('.env', mode='r') as env_file:
         line_segments = line.split('=')
         key = line_segments[0]
         value = line_segments[1]
-        if f"{key}" in ["MONITOR_BAUD", "HTTP_PORT"]:
+        if f"{key}" in ["MONITOR_BAUD", "HTTP_PORT", "GAS_SENSOR_PIN", "GAS_NORMAL_THRESHOLD"]:
             # noinspection PyUnresolvedReferences
             env.Append(CPPDEFINES=[(
                 f"{key}", f"{value}"

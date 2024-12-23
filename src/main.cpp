@@ -33,7 +33,7 @@
 #endif
 
 #ifndef HTTP_DOMAIN
-#define HTTP_DOMAIN "NodeSense-DEV"
+#define HTTP_DOMAIN "GasSense-DEV"
 #endif
 
 #ifndef HTTP_PORT
@@ -52,6 +52,14 @@
 #define SENSOR_TYPE "Template"
 #endif
 
+#ifndef GAS_SENSOR_PIN
+#define GAS_SENSOR_PIN A0
+#endif
+
+#ifndef GAS_NORMAL_THRESHOLD
+#define GAS_NORMAL_THRESHOLD 300
+#endif
+
 auto DEVICE_SERIAL_BAUD = MONITOR_BAUD;
 auto DEVICE_HTTP_DOMAIN = HTTP_DOMAIN;
 auto DEVICE_HTTP_PORT = HTTP_PORT;
@@ -67,6 +75,8 @@ void handleNotFound();
 void setup()
 {
     Serial.begin(DEVICE_SERIAL_BAUD);
+
+    pinMode(GAS_SENSOR_PIN, INPUT);
 
     Serial.println("");
     Serial.println(WIFI_SSID_NAME);
@@ -123,14 +133,21 @@ void handleStatus()
 
 void handleData()
 {
+    const int sensorRaw = analogRead(GAS_SENSOR_PIN);
+    const bool gasDetected = (sensorRaw > GAS_NORMAL_THRESHOLD);
+
     JSONVar json;
 
     json["message"] = "OK";
     json["status"] = "200";
 
-    json["raw"] = nullptr;
+    json["raw"] = sensorRaw;
 
-    json["processed"] = nullptr;
+    JSONVar processed;
+    processed["threshold"] = GAS_NORMAL_THRESHOLD;
+    processed["detected"] = gasDetected;
+
+    json["processed"] = processed;
 
     const String jsonResponse = JSON.stringify(json);
 
